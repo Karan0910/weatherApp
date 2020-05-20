@@ -14,24 +14,26 @@ import java.util.Locale;
 
 public class Utils {
 
-    public static void getCityFromLocation(final double latitude, final double longitude,
-                                              final Context context, final Handler handler) {
-        Thread thread = new Thread() {
+    public static String   getCityFromLocation(final double latitude, final double longitude,
+                                              final Context context) {
+        /*Thread thread = new Thread() {
             @Override
-            public void run() {
+            public void run() {*/
                 Geocoder geocoder = new Geocoder(context, Locale.getDefault());
                 String result = null;
-                try {
+                Address address=null;
+        try {
                     List<Address> addressList = geocoder.getFromLocation(
                             latitude, longitude, 1);
                     if (addressList != null && addressList.size() > 0) {
-                        Address address = addressList.get(0);
+                         address = addressList.get(0);
                         StringBuilder sb = new StringBuilder();
                         for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
                             sb.append(address.getAddressLine(i)).append("\n");
                         }
 
-                        System.out.println(address.getLocality());
+                        System.out.println("here"+address.getLocality());
+                        System.out.println("here"+address.getAdminArea());
                         //sb.append(address.getLocality()).append("\n");
                         //sb.append(address.getPostalCode()).append("\n");
                         //sb.append(address.getCountryName());
@@ -39,7 +41,11 @@ public class Utils {
                     }
                 } catch (IOException e) {
                     //Log.e(TAG, "Unable connect to Geocoder", e);
-                } finally {
+                }
+                return address.getAdminArea();
+
+
+                /*finally {
                     Message message = Message.obtain();
                     message.setTarget(handler);
                     if (result != null) {
@@ -57,10 +63,12 @@ public class Utils {
                         bundle.putString("address", result);
                         message.setData(bundle);
                     }
-                    message.sendToTarget();
+                    message.sendToTarget();*/
                 }
-            }
-        };
-        thread.start();
-    }
-}
+            //};
+       // thread.start();
+
+
+        }
+
+

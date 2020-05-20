@@ -12,13 +12,13 @@ class Clouds {
 
     @SerializedName("all")
     @Expose
-    private Integer all;
+    private Double all;
 
-    public Integer getAll() {
+    public Double getAll() {
         return all;
     }
 
-    public void setAll(Integer all) {
+    public void setAll(Double all) {
         this.all = all;
     }
 
@@ -53,28 +53,28 @@ class Main {
 
     @SerializedName("temp")
     @Expose
-    private Integer temp;
+    private Double temp;
     @SerializedName("feels_like")
     @Expose
     private Double feelsLike;
     @SerializedName("temp_min")
     @Expose
-    private Integer tempMin;
+    private Double tempMin;
     @SerializedName("temp_max")
     @Expose
-    private Integer tempMax;
+    private Double tempMax;
     @SerializedName("pressure")
     @Expose
-    private Integer pressure;
+    private Double pressure;
     @SerializedName("humidity")
     @Expose
-    private Integer humidity;
+    private Double humidity;
 
-    public Integer getTemp() {
+    public Double getTemp() {
         return temp;
     }
 
-    public void setTemp(Integer temp) {
+    public void setTemp(Double temp) {
         this.temp = temp;
     }
 
@@ -86,35 +86,35 @@ class Main {
         this.feelsLike = feelsLike;
     }
 
-    public Integer getTempMin() {
+    public Double getTempMin() {
         return tempMin;
     }
 
-    public void setTempMin(Integer tempMin) {
+    public void setTempMin(Double tempMin) {
         this.tempMin = tempMin;
     }
 
-    public Integer getTempMax() {
+    public Double getTempMax() {
         return tempMax;
     }
 
-    public void setTempMax(Integer tempMax) {
+    public void setTempMax(Double tempMax) {
         this.tempMax = tempMax;
     }
 
-    public Integer getPressure() {
+    public Double getPressure() {
         return pressure;
     }
 
-    public void setPressure(Integer pressure) {
+    public void setPressure(Double pressure) {
         this.pressure = pressure;
     }
 
-    public Integer getHumidity() {
+    public Double getHumidity() {
         return humidity;
     }
 
-    public void setHumidity(Integer humidity) {
+    public void setHumidity(Double humidity) {
         this.humidity = humidity;
     }
 
@@ -123,33 +123,33 @@ class Sys {
 
     @SerializedName("type")
     @Expose
-    private Integer type;
+    private Double type;
     @SerializedName("id")
     @Expose
-    private Integer id;
+    private Double id;
     @SerializedName("country")
     @Expose
     private String country;
     @SerializedName("sunrise")
     @Expose
-    private Integer sunrise;
+    private Double sunrise;
     @SerializedName("sunset")
     @Expose
-    private Integer sunset;
+    private Double sunset;
 
-    public Integer getType() {
+    public Double getType() {
         return type;
     }
 
-    public void setType(Integer type) {
+    public void setType(Double type) {
         this.type = type;
     }
 
-    public Integer getId() {
+    public Double getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Double id) {
         this.id = id;
     }
 
@@ -161,19 +161,19 @@ class Sys {
         this.country = country;
     }
 
-    public Integer getSunrise() {
+    public Double getSunrise() {
         return sunrise;
     }
 
-    public void setSunrise(Integer sunrise) {
+    public void setSunrise(Double sunrise) {
         this.sunrise = sunrise;
     }
 
-    public Integer getSunset() {
+    public Double getSunset() {
         return sunset;
     }
 
-    public void setSunset(Integer sunset) {
+    public void setSunset(Double sunset) {
         this.sunset = sunset;
     }
 
@@ -182,7 +182,7 @@ class Weather {
 
     @SerializedName("id")
     @Expose
-    private Integer id;
+    private Double id;
     @SerializedName("main")
     @Expose
     private String main;
@@ -193,11 +193,11 @@ class Weather {
     @Expose
     private String icon;
 
-    public Integer getId() {
+    public Double getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Double id) {
         this.id = id;
     }
 
@@ -242,7 +242,7 @@ class WeatherPojo {
     private Main main;
     @SerializedName("visibility")
     @Expose
-    private Integer visibility;
+    private Double visibility;
     @SerializedName("wind")
     @Expose
     private Wind wind;
@@ -251,22 +251,22 @@ class WeatherPojo {
     private Clouds clouds;
     @SerializedName("dt")
     @Expose
-    private Integer dt;
+    private Double dt;
     @SerializedName("sys")
     @Expose
     private Sys sys;
     @SerializedName("timezone")
     @Expose
-    private Integer timezone;
+    private Double timezone;
     @SerializedName("id")
     @Expose
-    private Integer id;
+    private Double id;
     @SerializedName("name")
     @Expose
     private String name;
     @SerializedName("cod")
     @Expose
-    private Integer cod;
+    private Double cod;
 
     public Coord getCoord() {
         return coord;
@@ -300,11 +300,11 @@ class WeatherPojo {
         this.main = main;
     }
 
-    public Integer getVisibility() {
+    public Double getVisibility() {
         return visibility;
     }
 
-    public void setVisibility(Integer visibility) {
+    public void setVisibility(Double visibility) {
         this.visibility = visibility;
     }
 
@@ -324,11 +324,11 @@ class WeatherPojo {
         this.clouds = clouds;
     }
 
-    public Integer getDt() {
+    public Double getDt() {
         return dt;
     }
 
-    public void setDt(Integer dt) {
+    public void setDt(Double dt) {
         this.dt = dt;
     }
 
@@ -340,19 +340,19 @@ class WeatherPojo {
         this.sys = sys;
     }
 
-    public Integer getTimezone() {
+    public Double getTimezone() {
         return timezone;
     }
 
-    public void setTimezone(Integer timezone) {
+    public void setTimezone(Double timezone) {
         this.timezone = timezone;
     }
 
-    public Integer getId() {
+    public Double getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Double id) {
         this.id = id;
     }
 
@@ -364,11 +364,11 @@ class WeatherPojo {
         this.name = name;
     }
 
-    public Integer getCod() {
+    public Double getCod() {
         return cod;
     }
 
-    public void setCod(Integer cod) {
+    public void setCod(Double cod) {
         this.cod = cod;
     }
 
@@ -380,7 +380,7 @@ class Wind {
     private Double speed;
     @SerializedName("deg")
     @Expose
-    private Integer deg;
+    private Double deg;
 
     public Double getSpeed() {
         return speed;
@@ -390,11 +390,11 @@ class Wind {
         this.speed = speed;
     }
 
-    public Integer getDeg() {
+    public Double getDeg() {
         return deg;
     }
 
-    public void setDeg(Integer deg) {
+    public void setDeg(Double deg) {
         this.deg = deg;
     }
 

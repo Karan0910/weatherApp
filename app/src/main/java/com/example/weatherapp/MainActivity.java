@@ -23,7 +23,9 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -67,33 +69,34 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         readCitiesList();
         getLatLon();
-        getWeatherInfo(cityW);
+        getWeatherInfo("Montreal");
         populateAdapter ();
     }
 
     public void initView()
     {
         spinner = (Spinner) findViewById(R.id.spinner);
-        address = (TextView) findViewById(R.id.address);
-        address = (TextView) findViewById(R.id.address);
+        updated_at = (TextView) findViewById(R.id.updated_at);
+        status = (TextView) findViewById(R.id.status);
+
+        temp = (TextView) findViewById(R.id.temp);
+
+        temp_min = (TextView) findViewById(R.id.temp_min);
+
+        temp_max = (TextView) findViewById(R.id.temp_max);
+
+        sunrise = (TextView) findViewById(R.id.sunrise);
+
+        sunset = (TextView) findViewById(R.id.sunset);
+
+        humidity = (TextView) findViewById(R.id.humidity);
+
+        wind = (TextView) findViewById(R.id.wind);
+        pressure = (TextView) findViewById(R.id.pressure);
+
 
         address = (TextView) findViewById(R.id.address);
 
-        address = (TextView) findViewById(R.id.address);
-
-        address = (TextView) findViewById(R.id.address);
-
-        address = (TextView) findViewById(R.id.address);
-
-        address = (TextView) findViewById(R.id.address);
-
-        address = (TextView) findViewById(R.id.address);
-
-        address = (TextView) findViewById(R.id.address);
-
-        address = (TextView) findViewById(R.id.address);
-
-        address = (TextView) findViewById(R.id.address);
     }
 
 
@@ -119,8 +122,25 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             public void onResponse(Call<WeatherPojo> call, Response<WeatherPojo> response) {
                 progressDoalog.dismiss();
+                updated_at.setText(doubleToLong(response.body().getDt()));
+                status.setText(response.body().getWeather().get(0).getMain());
+                temp.setText(response.body().getMain().getTemp().toString()+"°C");
+
+                temp_max.setText(response.body().getMain().getTempMax().toString()+"°C");
+
+                temp_min.setText(response.body().getMain().getTempMin().toString()+"°C");
+
+                sunset.setText(doubleToLong(response.body().getSys().getSunset()));
+
+                sunrise.setText(doubleToLong(response.body().getSys().getSunrise()));
 
 
+                humidity.setText(response.body().getMain().getHumidity().toString());
+
+                wind.setText(response.body().getWind().getSpeed().toString());
+
+                address.setText(response.body().getName()+" ,"+response.body().getSys().getCountry());
+                pressure.setText(response.body().getMain().getPressure().toString());
             }
 
             @Override
@@ -132,6 +152,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         });
     }
 
+
+    public String doubleToLong (Double d) {
+        return new SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.ENGLISH).format(new Date(new Double(d).longValue()*1000));
+    }
 
 
     public String loadJSONFromAsset () {
@@ -253,7 +277,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         // Showing selected spinner item
         Toast.makeText(parent.getContext(), "Selected: " + item, Toast.LENGTH_LONG).show();
-        getWeatherInfo(item);
+        //getWeatherInfo(item);
     }
     public void onNothingSelected(AdapterView<?> arg0) {
         // TODO Auto-generated method stub

@@ -1,6 +1,9 @@
 package com.example.weatherapp;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.appcompat.widget.ToolbarWidgetWrapper;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
@@ -10,6 +13,8 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -27,7 +32,15 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity {
+
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private HashMap<String,ArrayList<String>> countrytoCity =new HashMap<>();
     ArrayList<String> countryList = new ArrayList<>();
@@ -35,23 +48,68 @@ public class MainActivity extends AppCompatActivity {
     ProgressDialog progressDoalog;
     AppLocationService appLocationService;
     String cityW="";
-
+    ArrayAdapter adapter;
+    ListView listView;
+    TextView emptyView,address,updated_at,status,temp,temp_min,temp_max,sunrise,sunset,humidity,wind,pressure;
+    Spinner spinner;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
+        initView();
+        // Spinner click listener
+        spinner.setOnItemSelectedListener(this);
         appLocationService = new AppLocationService(
                 MainActivity.this,MainActivity.this);
         progressDoalog = new ProgressDialog(MainActivity.this);
         progressDoalog.setMessage("Loading....");
         progressDoalog.show();
 
-        //readCitiesList();
+        readCitiesList();
         getLatLon();
         getWeatherInfo(cityW);
+        populateAdapter ();
     }
+
+    public void initView()
+    {
+        spinner = (Spinner) findViewById(R.id.spinner);
+        address = (TextView) findViewById(R.id.address);
+        address = (TextView) findViewById(R.id.address);
+
+        address = (TextView) findViewById(R.id.address);
+
+        address = (TextView) findViewById(R.id.address);
+
+        address = (TextView) findViewById(R.id.address);
+
+        address = (TextView) findViewById(R.id.address);
+
+        address = (TextView) findViewById(R.id.address);
+
+        address = (TextView) findViewById(R.id.address);
+
+        address = (TextView) findViewById(R.id.address);
+
+        address = (TextView) findViewById(R.id.address);
+
+        address = (TextView) findViewById(R.id.address);
+    }
+
+
+    public void populateAdapter () {
+
+        // Creating adapter for spinner
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, city);
+
+        // Drop down layout style - list view with radio button
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // attaching data adapter to spinner
+        spinner.setAdapter(dataAdapter);
+    }
+
+
 
 
     public void getWeatherInfo (String cityW) {
@@ -62,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<WeatherPojo> call, Response<WeatherPojo> response) {
                 progressDoalog.dismiss();
 
-                System.out.println("here" + response.body().getWind().getSpeed().toString());
+
             }
 
             @Override
@@ -93,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-        public void readCitiesList () {
+    public void readCitiesList () {
 
 
             String[] isoCountryCodes = Locale.getISOCountries();
@@ -168,5 +226,37 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.mainsearch, menu);
+        MenuItem mSearch = menu.findItem(R.id.appSearchBar);
+        SearchView mSearchView = (SearchView) mSearch.getActionView();
+        mSearchView.setQueryHint("Search");
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                adapter.getFilter().filter(newText);
+                return true;
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        // On selecting a spinner item
+        String item = parent.getItemAtPosition(position).toString();
+
+        // Showing selected spinner item
+        Toast.makeText(parent.getContext(), "Selected: " + item, Toast.LENGTH_LONG).show();
+        getWeatherInfo(item);
+    }
+    public void onNothingSelected(AdapterView<?> arg0) {
+        // TODO Auto-generated method stub
+    }
 
 }

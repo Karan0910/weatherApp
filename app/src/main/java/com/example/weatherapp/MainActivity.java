@@ -8,6 +8,8 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
@@ -42,7 +44,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,SearchView.OnQueryTextListener {
 
     private HashMap<String,ArrayList<String>> countrytoCity =new HashMap<>();
     ArrayList<String> countryList = new ArrayList<>();
@@ -50,8 +52,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     ProgressDialog progressDoalog;
     AppLocationService appLocationService;
     String cityW="";
-    ArrayAdapter adapter;
-    ListView listView;
+    // Declare Variables
+    ListView list;
+    ListViewAdapter adapter;
+    SearchView editsearch;
+
     TextView emptyView,address,updated_at,status,temp,temp_min,temp_max,sunrise,sunset,humidity,wind,pressure;
     Spinner spinner;
     @Override
@@ -97,19 +102,23 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         address = (TextView) findViewById(R.id.address);
 
+
+        // Pass results to ListViewAdapter Class
+
+        // Locate the EditText in listview_main.xml
+        editsearch = (SearchView) findViewById(R.id.search);
+        editsearch.setOnQueryTextListener(this);
+
     }
 
 
     public void populateAdapter () {
+        list = (ListView) findViewById(R.id.listview);
+        adapter = new ListViewAdapter(this, city);
 
-        // Creating adapter for spinner
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, city);
+        // Binds the Adapter to the ListView
+        list.setAdapter(adapter);
 
-        // Drop down layout style - list view with radio button
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        // attaching data adapter to spinner
-        spinner.setAdapter(dataAdapter);
     }
 
 
@@ -130,9 +139,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                 temp_min.setText(response.body().getMain().getTempMin().toString()+"°C");
 
-                sunset.setText(doubleToLong(response.body().getSys().getSunset()));
+                sunset.setText(doubleToLongWithoutDate(response.body().getSys().getSunset()));
 
-                sunrise.setText(doubleToLong(response.body().getSys().getSunrise()));
+                sunrise.setText(doubleToLongWithoutDate(response.body().getSys().getSunrise()));
 
 
                 humidity.setText(response.body().getMain().getHumidity().toString());
@@ -157,6 +166,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         return new SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.ENGLISH).format(new Date(new Double(d).longValue()*1000));
     }
 
+    public String doubleToLongWithoutDate (Double d) {
+        return new SimpleDateFormat("hh:mm a", Locale.ENGLISH).format(new Date(new Double(d).longValue()*1000));
+    }
 
     public String loadJSONFromAsset () {
         String json = null;
@@ -250,24 +262,24 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
 
 
+    SearchView searchView;
+    MenuItem  searchMenuItem;
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
         getMenuInflater().inflate(R.menu.mainsearch, menu);
-        MenuItem mSearch = menu.findItem(R.id.appSearchBar);
-        SearchView mSearchView = (SearchView) mSearch.getActionView();
-        mSearchView.setQueryHint("Search");
-        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                adapter.getFilter().filter(newText);
-                return true;
-            }
-        });
-        return super.onCreateOptionsMenu(menu);
+
+        SearchManager searchManager = (SearchManager)
+                getSystemService(Context.SEARCH_SERVICE);
+        searchMenuItem = menu.findItem(R.id.search);
+        searchView = (SearchView) searchMenuItem.getActionView();
+
+        searchView.setSearchableInfo(searchManager.
+                getSearchableInfo(getComponentName()));
+        searchView.setSubmitButtonEnabled(true);
+        searchView.setOnQueryTextListener(this);
+
+        return true;
     }
 
     @Override
@@ -282,5 +294,29 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void onNothingSelected(AdapterView<?> arg0) {
         // TODO Auto-generated method stub
     }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        String text = newText;
+        adapter.filter(text);
+        return false;
+    }
+
+    private void handelListItemClick(String city) {
+        // close search view if its visible
+        if (searchView.isShown()) {
+            searchMenuItem.collapseActionView();
+            searchView.setQuery("", false);
+        }
+        getWeatherInfo(city);
+    }
+
+
 
 }

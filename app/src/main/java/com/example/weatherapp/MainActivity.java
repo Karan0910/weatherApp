@@ -7,13 +7,16 @@ import androidx.appcompat.widget.ToolbarWidgetWrapper;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -23,8 +26,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectOutputStream;
+import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -44,10 +52,13 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener,SearchView.OnQueryTextListener {
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+public class MainActivity extends Activity implements AdapterView.OnItemSelectedListener,SearchView.OnQueryTextListener,OnClickListener {
 
     private HashMap<String,ArrayList<String>> countrytoCity =new HashMap<>();
-    ArrayList<String> countryList = new ArrayList<>();
+
     ArrayList<String> city = new ArrayList<>();
     ProgressDialog progressDoalog;
     AppLocationService appLocationService;
@@ -64,23 +75,30 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
-        // Spinner click listener
-        spinner.setOnItemSelectedListener(this);
         appLocationService = new AppLocationService(
                 MainActivity.this,MainActivity.this);
         progressDoalog = new ProgressDialog(MainActivity.this);
         progressDoalog.setMessage("Loading....");
         progressDoalog.show();
 
-        readCitiesList();
+        populateAdapter();
         getLatLon();
         getWeatherInfo("Montreal");
-        populateAdapter ();
+
     }
+
+    public  ArrayList<String> getArrayList(String key){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+        Gson gson = new Gson();
+        String json = prefs.getString(key, null);
+        Type type = new TypeToken<ArrayList<String>>() {}.getType();
+        System.out.println("here"+gson.fromJson(json, type));
+        return gson.fromJson(json, type);
+    }
+
 
     public void initView()
     {
-        spinner = (Spinner) findViewById(R.id.spinner);
         updated_at = (TextView) findViewById(R.id.updated_at);
         status = (TextView) findViewById(R.id.status);
 
@@ -113,8 +131,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
     public void populateAdapter () {
+        city=getArrayList("cityList");
         list = (ListView) findViewById(R.id.listview);
-        adapter = new ListViewAdapter(this, city);
+        list.setVisibility(View.INVISIBLE);
+
+        adapter = new ListViewAdapter(this, city,MainActivity.this);
 
         // Binds the Adapter to the ListView
         list.setAdapter(adapter);
@@ -125,11 +146,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
     public void getWeatherInfo (String cityW) {
+
+        progressDoalog.setMessage("Loading....");
+        progressDoalog.show();
         GetData service = RetrofitClientInstance.getRetrofitInstance().create(GetData.class);
         Call<WeatherPojo> call = service.getWeather(cityW);
         call.enqueue(new Callback<WeatherPojo>() {
             @Override
             public void onResponse(Call<WeatherPojo> call, Response<WeatherPojo> response) {
+
                 progressDoalog.dismiss();
                 updated_at.setText(doubleToLong(response.body().getDt()));
                 status.setText(response.body().getWeather().get(0).getMain());
@@ -170,59 +195,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         return new SimpleDateFormat("hh:mm a", Locale.ENGLISH).format(new Date(new Double(d).longValue()*1000));
     }
 
-    public String loadJSONFromAsset () {
-        String json = null;
-        try {
-            InputStream is = getAssets().open("cities.json");
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            json = new String(buffer, "UTF-8");
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return null;
-        }
-        return json;
-    }
-
-
-    public void readCitiesList () {
-
-
-            String[] isoCountryCodes = Locale.getISOCountries();
-            for (String countryCode : isoCountryCodes) {
-                Locale locale = new Locale("", countryCode);
-                countryList.add(locale.getDisplayName());
-                System.out.println(locale.getDisplayName());
-            }
-
-            try {
-
-                for (String countryName : countryList) {
-
-                    JSONObject obj = new JSONObject(loadJSONFromAsset());
-                    countryName = countryName.replace("&", "and");
-                    JSONArray countryListArray = null;
-                    if (obj.has(countryName)) {
-                        countryListArray = obj.getJSONArray(countryName);
-
-                        ArrayList<String> list = new ArrayList<>();
-                        for (int i = 0; i < countryListArray.length(); i++) {
-                            String cityName = countryListArray.getString(i);
-                            Log.d("Details-->", cityName);
-                            city.add(cityName);
-                            list.add(cityName);
-
-                        }
-                        countrytoCity.put(countryName, list);
-                    }
-                }
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
 
 
     public void getLatLon() {
@@ -264,23 +236,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     SearchView searchView;
     MenuItem  searchMenuItem;
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
 
-        getMenuInflater().inflate(R.menu.mainsearch, menu);
-
-        SearchManager searchManager = (SearchManager)
-                getSystemService(Context.SEARCH_SERVICE);
-        searchMenuItem = menu.findItem(R.id.search);
-        searchView = (SearchView) searchMenuItem.getActionView();
-
-        searchView.setSearchableInfo(searchManager.
-                getSearchableInfo(getComponentName()));
-        searchView.setSubmitButtonEnabled(true);
-        searchView.setOnQueryTextListener(this);
-
-        return true;
-    }
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -304,6 +260,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public boolean onQueryTextChange(String newText) {
         String text = newText;
+        list.setVisibility(View.VISIBLE);
         adapter.filter(text);
         return false;
     }
@@ -317,6 +274,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         getWeatherInfo(city);
     }
 
-
+    @Override
+    public void onItemClick(String city){
+        getWeatherInfo(city);
+        list.setVisibility(View.INVISIBLE);
+    }
 
 }

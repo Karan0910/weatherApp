@@ -1,5 +1,6 @@
 package com.example.weatherapp;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,13 +19,15 @@ public class ListViewAdapter extends BaseAdapter {
     LayoutInflater inflater;
     private List<String> cityName = null;
     private ArrayList<String> arraylist;
+    OnClickListener onClickListener;
 
-    public ListViewAdapter(Context context, List<String> cityName) {
+    public ListViewAdapter(Context context, List<String> cityName, MainActivity activity) {
         mContext = context;
         this.cityName = cityName;
         inflater = LayoutInflater.from(mContext);
         this.arraylist = new ArrayList<String>();
         this.arraylist.addAll(cityName);
+        onClickListener=activity;
     }
 
     public class ViewHolder {
@@ -59,6 +62,14 @@ public class ListViewAdapter extends BaseAdapter {
         }
         // Set the results into TextViews
         holder.name.setText(cityName.get(position));
+
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onClickListener.onItemClick(cityName.get(position));
+            }
+        });
+
         return view;
     }
 
@@ -66,6 +77,10 @@ public class ListViewAdapter extends BaseAdapter {
     public void filter(String charText) {
         charText = charText.toLowerCase(Locale.getDefault());
         cityName.clear();
+
+        if (charText.length() == 0) {
+            cityName.addAll(new ArrayList<String>());
+        }
         if (charText.length() == 0) {
             cityName.addAll(new ArrayList<String>());
         } else {

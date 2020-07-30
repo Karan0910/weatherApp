@@ -1,2 +1,2 @@
 # weatherApp
-A simple weather application in for Android 
+A simple weather application for Android 
